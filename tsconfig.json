@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "sourceMap": true,
+    "module": "esnext", // normally it would be es6, but because of dynamic import it need to be something modern
+    "removeComments": false, // we need to keep "magic comments" to keep dynamic imports working
+    "target": "es5",
+    "allowJs": true,
+    "moduleResolution": "node",
+    "baseUrl": "./src",
+    "typeRoots": ["./node_modules/@webgpu/types", "./node_modules/@types"], // added because of WebGPU types. Also had to add node_modules/@types, because typeRoots override default typeRoots, not extends
+
+    // everything below is just suggested by https://www.npmjs.com/package/@tsconfig/recommended
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "$schema": "https://json.schemastore.org/tsconfig", // @tsconfig/recommended
+  "display": "Recommended" // @tsconfig/recommended
+}
