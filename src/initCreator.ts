@@ -1,5 +1,6 @@
 import Sketch from "Sketch";
 import State from "State";
+import initUI from "UI/initUI";
 import canvasSizeObserver from "WebGPU/canvasSizeObserver";
 import getDevice from "WebGPU/getDevice";
 import initPrograms from "WebGPU/programs/initPrograms";
@@ -29,8 +30,9 @@ export default async function initCreator() {
 
   initPrograms(device, presentationFormat)
 
-  runCreator(state, context)
-  // initUI(state);
+  runCreator(state, canvas, context, device)
+
+  initUI(state)
 }
 
 

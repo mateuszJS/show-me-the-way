@@ -1,3 +1,4 @@
+import mat3 from "WebGPU/m3";
 import shaderCode from "./shader.wgsl"
 
 export default function getProgram(device: GPUDevice, presentationFormat: GPUTextureFormat) {
@@ -28,6 +29,23 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
     },
   });
 
+
+  // const renderPassDescriptor: GPURenderPassDescriptor = {
+  //   label: 'our basic canvas renderPass',
+  //   colorAttachments: [
+  //     {
+  //       view: context.getCurrentTexture().createView(),
+  //       loadOp: 'clear',
+  //       storeOp: 'store',
+  //     } as const,
+  //   ],
+  // };
+
+  return function renderDrawTriangle(
+    pass: GPURenderPassEncoder,
+    matrix: Float32Array,
+    x: number,
+  ) {
 
   // color, matrix
   const uniformBufferSize = (4 + 12) * 4;
@@ -73,31 +91,12 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
     ],
   });
 
-  // const renderPassDescriptor: GPURenderPassDescriptor = {
-  //   label: 'our basic canvas renderPass',
-  //   colorAttachments: [
-  //     {
-  //       view: context.getCurrentTexture().createView(),
-  //       loadOp: 'clear',
-  //       storeOp: 'store',
-  //     } as const,
-  //   ],
-  // };
-
-  return function renderDrawTriangle(renderPassDescriptor: GPURenderPassDescriptor, matrix: Float32Array) {
-    // (renderPassDescriptor.colorAttachments as GPURenderPassColorAttachment[])[0].view =
-    // context!.getCurrentTexture().createView();
-
-    const encoder = device.createCommandEncoder();
-    const pass = encoder.beginRenderPass(renderPassDescriptor);
     pass.setPipeline(pipeline);
     pass.setVertexBuffer(0, vertexBuffer);
     pass.setIndexBuffer(indexBuffer, 'uint32');
 
     matrixValue.set(matrix)
-    // mat3.projection(canvas!.clientWidth, canvas!.clientHeight, matrixValue);
-    // mat3.translate(matrixValue, [100, 100], matrixValue);
-    // mat3.rotate(matrixValue, [0.25], matrixValue);
+    mat3.translate(matrixValue, [x, 0], matrixValue);
     // mat3.scale(matrixValue, [1.1, 1.1], matrixValue);
 
     // upload the uniform values to the uniform buffer
@@ -106,9 +105,9 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
     pass.setBindGroup(0, bindGroup);
     pass.drawIndexed(numVertices);
 
-    pass.end();
+    // pass.end();
 
-    const commandBuffer = encoder.finish();
-    device.queue.submit([commandBuffer]);
+    // const commandBuffer = encoder.finish();
+    // device.queue.submit([commandBuffer]);
   }
 }

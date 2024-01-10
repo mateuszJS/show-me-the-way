@@ -20,7 +20,7 @@ export interface Segment {
   lengths: number[]; // progressive lengths
 }
 
-export default class Spline {
+export default class Path {
   private inputPoints: Point[]; // this is exactly path from user input
   public segments: Segment[];
   private draftPoint: Point | null;
@@ -51,6 +51,7 @@ export default class Spline {
   }
 
   public addControlPoint(pointer: Point, last = false) {
+    console.log("pointer", pointer)
     const { inputPoints, draftPoint, withinDirection } = this;
 
     if (inputPoints.length === 0 || last) {
@@ -82,21 +83,31 @@ export default class Spline {
   private updateControlPoints() {
     const pointsAsArray = this.inputPoints.map((p) => [p.x, p.y]);
 
-    if (this.draftPoint) {
+    if (
+      this.draftPoint &&
+      this.draftPoint.x !== pointsAsArray[pointsAsArray.length - 1][0] &&
+      this.draftPoint.y !== pointsAsArray[pointsAsArray.length - 1][1]
+    ) {
       pointsAsArray.push([this.draftPoint.x, this.draftPoint.y]);
     }
 
     const fitted = fitCurve(
       pointsAsArray,
-      this.draftPoint ? 10 : SIMPLIFICATION_FACTOR
+      10, // this.draftPoint ? 10 : SIMPLIFICATION_FACTOR
     );
     if (fitted.length === 0) return;
 
     this.segments = fitted.map<Segment>((bezierCurve) => {
-      const controlPoints = bezierCurve.map(([x, y]) => ({
-        x,
-        y,
-      })) as Segment["controlPoints"];
+      const controlPoints = bezierCurve.map(([x, y]) => {
+        if (Number.isNaN(x) || Number.isNaN(y)) {
+          console.log(fitted, pointsAsArray, this.draftPoint)
+          debugger
+        }
+        return {
+          x,
+         y,
+        }
+      }) as Segment["controlPoints"];
       const lengths = getCurveLength(...controlPoints, TEX_COORD_PRECISION);
 
       return {

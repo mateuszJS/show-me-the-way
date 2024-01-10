@@ -1,9 +1,18 @@
+import Interactivity from "Interactivity";
 import Sketch from "Sketch";
+import Background from "Background";
 import State from "State";
 import { canvasMatrix } from "WebGPU/canvasSizeObserver";
 
-export default function runCreator(state: State, context: GPUCanvasContext) {
+export default function runCreator(
+  state: State,
+  canvas: HTMLCanvasElement,
+  context: GPUCanvasContext,
+  device: GPUDevice,
+) {
   const sketch = new Sketch();
+  const interactivity = new Interactivity(canvas, state);
+  const background = new Background();
 
   function draw(now: DOMHighResTimeStamp) {
     const { needRefresh } = state; // make save copy of needsRefresh value
@@ -16,14 +25,25 @@ export default function runCreator(state: State, context: GPUCanvasContext) {
         colorAttachments: [
           {
             view: context.getCurrentTexture().createView(),
-            clearValue: [0.3, 0.3, 0.3, 1],
+            // clearValue: [0, 0, 0, 1],
             loadOp: "clear", // before rendering clear the texture to value "clear". Other option is "load" to load existing content of the texture into GPU so we can draw over it
             storeOp: "store", // to store the result of what we draw, other option is "discard"
           } as const,
         ],
       };
+      const encoder = device.createCommandEncoder()
+      const pass = encoder.beginRenderPass(renderPassDescriptor)
 
-      sketch.render(state, renderPassDescriptor, canvasMatrix);
+      if (state.view === "creator") {
+        sketch.render(state, pass, canvasMatrix);
+        // interactivity.render(state, pass, canvasMatrix)
+      } else {
+        background.render(state, pass canvasMatrix)
+      }
+
+      pass.end()
+      const commandBuffer = encoder.finish();
+      device.queue.submit([commandBuffer]);
     }
 
     requestAnimationFrame(draw);
