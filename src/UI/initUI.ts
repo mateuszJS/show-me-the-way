@@ -5,5 +5,7 @@ export default function initUI(state: State) {
   toggleCreatorBtn.addEventListener("click", () => {
     if (state.view === "preview") state.view = "creator"
     else state.view = "preview"
+
+    state.needRefresh = true
   })
 }

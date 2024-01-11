@@ -1,6 +1,6 @@
+import Background from "Background";
 import Interactivity from "Interactivity";
 import Sketch from "Sketch";
-import Background from "Background";
 import State from "State";
 import { canvasMatrix } from "WebGPU/canvasSizeObserver";
 
@@ -12,7 +12,7 @@ export default function runCreator(
 ) {
   const sketch = new Sketch();
   const interactivity = new Interactivity(canvas, state);
-  const background = new Background();
+  const background = new Background(device);
 
   function draw(now: DOMHighResTimeStamp) {
     const { needRefresh } = state; // make save copy of needsRefresh value
@@ -38,7 +38,7 @@ export default function runCreator(
         sketch.render(state, pass, canvasMatrix);
         // interactivity.render(state, pass, canvasMatrix)
       } else {
-        background.render(state, pass canvasMatrix)
+        background.render(state, pass, canvasMatrix)
       }
 
       pass.end()

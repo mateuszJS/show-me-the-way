@@ -9,7 +9,7 @@ module.exports = {
     static: "./dist",
   },
   resolve: {
-    extensions: [".ts", ".js", ".wgsl", ".png", ".svg"],
+    extensions: [".ts", ".js", ".wgsl", ".jpg", ".png", ".svg"],
     modules: [path.resolve(__dirname, "src"), "node_modules"],
     /* useful with absolute imports, "src" dir now takes precedence over "node_modules",
     otherwise you got an error:

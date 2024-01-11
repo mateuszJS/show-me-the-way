@@ -1,9 +1,15 @@
 import State from "State";
-import { drawBezier } from "WebGPU/programs/initPrograms";
+import { drawBezier, drawPlane } from "WebGPU/programs/initPrograms";
+import MapEuropeJpg from "./map-europe.jpg"
+import FtexPng from "./f-texture.png"
+import { createTextureFromImage } from "WebGPU/getTexture";
 
 export default class Background {
-  constructor() {
-    
+  private texture: GPUTexture | null
+
+  constructor(device: GPUDevice) {
+    this.texture = null
+    createTextureFromImage(device, FtexPng, {mips: true, flipY: false}).then(tex => this.texture = tex)
   }
 
   public render(
@@ -11,37 +17,7 @@ export default class Background {
     pass: GPURenderPassEncoder,
     matrix: Float32Array
   ) {
-    if (state.path.segments.length > 0) {
-      const collectedTStart: number[] = []
-      const collectedTEnd: number[] = []
-      const collectedDirStart: number[] = []
-      const collectedDirEnd: number[] = []
-      const collectedSegmentIndexStart: number[] = []
-      const collectedSegmentIndexEnd: number[] = []
-      const collectedPoints: number[] = []
-
-      state.path.segments.forEach((segment, index) => (
-        this.drawSegment(
-          segment,
-          index,
-          collectedTStart,
-          collectedTEnd,
-          collectedDirStart,
-          collectedDirEnd,
-          collectedSegmentIndexStart,
-          collectedSegmentIndexEnd,
-          collectedPoints
-        )
-      ))
-
-      drawBezier(
-        pass,
-        matrix,
-        new Float32Array(collectedPoints),
-        new Float32Array(collectedTStart.concat(collectedTEnd.reverse())),
-        new Float32Array(collectedDirStart.concat(collectedDirEnd.reverse())),
-        new Uint32Array(collectedSegmentIndexStart.concat(collectedSegmentIndexEnd.reverse()))
-      )
-    }
+    if (this.texture === null) return
+    drawPlane(pass, matrix, this.texture)
   }
 }
