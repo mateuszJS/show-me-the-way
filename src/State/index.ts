@@ -8,7 +8,7 @@ export default class State {
   constructor() {
     this.needRefresh = false
     this.path = new Path()
-    this.view = "creator"
+    this.view = "preview"
   }
 
   public buildPath(pointer: Point) {

@@ -35,7 +35,7 @@ export default class Path {
     this.segmentsUpdate = 0;
   }
 
-  public getPosAndTan(progress: number) {
+  public getPosAndTan(progress: number): [Point, Point] {
     // progress measured in segments
 
     const segmentIndex = Math.floor(progress);

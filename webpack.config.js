@@ -34,6 +34,11 @@ module.exports = {
       {
         test: /\.(png|jpg|jpeg|gif)$/,
         type: "asset/resource",
+        parser: {
+          dataUrlCondition: {
+            maxSize: 11 * 1024 // 4kb
+          }
+        }
       },
     ],
   },

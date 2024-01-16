@@ -2,12 +2,12 @@ import shaderCode from "./shader.wgsl"
 
 export default function getProgram(device: GPUDevice, presentationFormat: GPUTextureFormat) {
   const module = device.createShaderModule({
-    label: "plane shader module",
+    label: "3d model shader module",
     code: shaderCode,
   });
 
   const pipeline = device.createRenderPipeline({
-    label: 'plane pipline',
+    label: '3d model pipline',
     layout: 'auto',
     vertex: {
       module,
@@ -15,11 +15,10 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
       buffers: [
         {
           // position + texture coords
-          // arrayStride: (3) * 4, // (3 + 2) floats, 4 bytes each
-          arrayStride: (3 + 2) * 4, // (3 + 2) floats, 4 bytes each
+          // arrayStride: (3) * 4, // (3) floats, 4 bytes each
+          arrayStride: (3) * 4, // (3) floats, 4 bytes each
           attributes: [
             {shaderLocation: 0, offset: 0, format: 'float32x3'},  // position
-            {shaderLocation: 1, offset: (3) * 4, format: 'float32x2'},  // texture coord
           ] as const,
         },
       ],
@@ -29,9 +28,12 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
       entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
+    primitive: {
+      cullMode: 'back',
+    },
     depthStencil: {
-      depthWriteEnabled: false,
-      depthCompare: 'always',
+      depthWriteEnabled: true,
+      depthCompare: 'less',
       format: 'depth24plus',
     },
   });
@@ -39,10 +41,9 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
 
 
 
-  return function renderDrawPlane(
+  return function renderDraw3dModel(
     pass: GPURenderPassEncoder,
     matrix: Float32Array,
-    texture: GPUTexture,
     vertexData: Float32Array,
     indexData: Uint32Array,
   ) {
@@ -58,7 +59,6 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
     //   { width: source.width, height: source.height },
     // );
   // matrix
-  console.log("program is being used")
   const uniformBufferSize = (16) * 4;
   const uniformBuffer = device.createBuffer({
     label: 'uniforms',
@@ -92,8 +92,6 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
     layout: pipeline.getBindGroupLayout(0),
     entries: [
       { binding: 0, resource: { buffer: uniformBuffer }},
-      { binding: 1, resource: sampler },
-      { binding: 2, resource: texture.createView() },
     ],
   });
 

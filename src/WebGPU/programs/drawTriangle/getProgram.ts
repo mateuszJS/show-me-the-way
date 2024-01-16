@@ -27,6 +27,11 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
       entryPoint: 'fs',
       targets: [{ format: presentationFormat }],
     },
+    depthStencil: {
+      depthWriteEnabled: false,
+      depthCompare: 'always',
+      format: 'depth24plus',
+    },
   });
 
 
