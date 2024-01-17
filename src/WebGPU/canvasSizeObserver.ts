@@ -1,13 +1,5 @@
 import m3 from './m3'
 
-export let canvasMatrix: Float32Array;
-
-export function calcMatrix() {
-  // clientWidth - to get CSS Pixel unit
-  // drawingBufferWidth - to get real pixels unit
-
-}
-
 export default function canvasSizeObserver(
   canvas: HTMLCanvasElement,
   device: GPUDevice,
@@ -25,11 +17,6 @@ export default function canvasSizeObserver(
       canvas.height = Math.max(
         1,
         Math.min(height, device.limits.maxTextureDimension2D)
-      );
-
-      canvasMatrix = m3.projection(
-        canvas.width,
-        canvas.height
       );
       callback()
     }

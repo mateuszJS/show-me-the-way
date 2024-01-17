@@ -4,7 +4,7 @@ import initUI from "UI/initUI";
 import canvasSizeObserver from "WebGPU/canvasSizeObserver";
 import getDevice from "WebGPU/getDevice";
 import initPrograms from "WebGPU/programs/initPrograms";
-import runCreator from "runCreator";
+import runCreator from "Creator/run";
 
 export default async function initCreator() {
   const state = new State()

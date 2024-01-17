@@ -1,4 +1,4 @@
 
-import(/* webpackChunkName: "initCreator" */ "initCreator").then((module) => {
+import(/* webpackChunkName: "Creator/init" */ "Creator/init").then((module) => {
   module.default();
 });

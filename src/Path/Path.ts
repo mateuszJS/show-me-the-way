@@ -51,7 +51,6 @@ export default class Path {
   }
 
   public addControlPoint(pointer: Point, last = false) {
-    console.log("pointer", pointer)
     const { inputPoints, draftPoint, withinDirection } = this;
 
     if (inputPoints.length === 0 || last) {

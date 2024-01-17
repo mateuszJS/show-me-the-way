@@ -1,5 +1,5 @@
 struct Uniforms {
-  matrix: mat3x3f,
+  matrix: mat4x4f,
 };
 
 struct Vertex {
@@ -34,8 +34,8 @@ struct VSOutput {
   let angleNorm = normalize(angle) * 50.0;
   let transPos = vec2(pos.x - angleNorm.y * vert.dir, pos.y + angleNorm.x * vert.dir);
 
-  let clipSpace = (u.matrix * vec3f(transPos, 1)).xy;
-  vsOut.position = vec4f(clipSpace, 0.0, 1.0);
+  let clipSpace = (u.matrix * vec4f(transPos, 1, 1));
+  vsOut.position = clipSpace;
   vsOut.color = vec4f(f32(vert.segmentIndex) % 3, (f32(vert.segmentIndex) + 1) % 3, (f32(vert.segmentIndex) + 2) % 3, 1);
 
   return vsOut;

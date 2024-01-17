@@ -1,12 +1,7 @@
 import State from "State";
-import { draw3dModel, drawBezier, drawPlane } from "WebGPU/programs/initPrograms";
-import MapEuropeJpg from "./map-europe.jpg"
-import FtexPng from "./f-texture.png"
-import FtexJpg from "./f-texture.jpg"
-import PoliticalMap from "./political-map-of-europe.jpg"
-import { createTextureFromImage } from "WebGPU/getTexture";
+import { draw3dModel } from "WebGPU/programs/initPrograms";
 import mat4 from "utils/mat4";
-import Path, { Segment } from "Path/Path";
+import Path from "Path/Path";
 
 const PRECISION = 12
 
@@ -21,14 +16,14 @@ function getVertex(path: Path) {
     for (let p = 0; p < PRECISION; p++) {
       const angle = p * 2 * Math.PI / PRECISION
       const [pointOnCurve, curveTan] = path.getPosAndTan(t)
-      const x2d = Math.cos(angle) * 0.7
-      const z2d = -Math.sin(angle) * 0.7// -10 or +10
+      const x2d = Math.cos(angle) * 0.35
+      const z2d = -Math.sin(angle) * 0.35// -10 or +10
       const y2d = 0
 
       const angleZaxis = Math.atan2(curveTan.x, curveTan.y)
 
-      const x3d = x2d * Math.cos(angleZaxis) - y2d * Math.sin(angleZaxis) + pointOnCurve.x / 100 
-      const y3d = x2d * Math.sin(angleZaxis) + y2d * Math.cos(angleZaxis) - pointOnCurve.y / 100
+      const x3d = x2d * Math.cos(angleZaxis) - y2d * Math.sin(angleZaxis) + (pointOnCurve.x - window.innerWidth / 2) / 100 
+      const y3d = x2d * Math.sin(angleZaxis) + y2d * Math.cos(angleZaxis) - (pointOnCurve.y - window.innerHeight / 2) / 100
       const z3d = z2d
 
       vertex.push(x3d, y3d, z3d)
@@ -52,7 +47,6 @@ function getVertex(path: Path) {
     }
     circleIndex++
   }
-  console.log("indices", indices)
   return [vertex, indices]
 }
 

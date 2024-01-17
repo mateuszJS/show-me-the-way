@@ -8,7 +8,9 @@ export default function attachListeners(
   node: HTMLCanvasElement,
   onPointerDown: (pointer: Point) => void,
   onPointerMove: (pointer: Point) => void,
-  onPointerUp: (pointer: Point) => void
+  onPointerUp: (pointer: Point) => void,
+  onPointerLeave: VoidFunction,
+  onWheel: (zoom: number) => void
 ) {
   // we assume that canvas is places in very top left corner, no offset
   // so we do not have to subtract left top corner of the listening node
@@ -38,4 +40,11 @@ export default function attachListeners(
   node.addEventListener("mouseup", (e) => {
     onPointerUp({ x: e.clientX, y: e.clientY });
   });
+  node.addEventListener("mouseleave", () => {
+    onPointerLeave()
+  })
+  node.addEventListener("wheel", (e) => {
+    console.log(e.deltaX, e.deltaMode, e.deltaY, e.deltaZ)
+    onWheel(e.deltaY)
+  })
 }

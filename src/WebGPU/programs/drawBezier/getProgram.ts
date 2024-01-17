@@ -67,7 +67,7 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
   });
 
 
-  const uniformBufferSize = (12/*matrix*/) * 4;
+  const uniformBufferSize = (16/*matrix*/) * 4;
   const uniformBuffer = device.createBuffer({
     label: 'uniforms',
     size: uniformBufferSize,
@@ -79,7 +79,7 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
   // offsets to the various uniform values in float32 indices
   const kMatrixOffset = 0;
 
-  const matrixValue = uniformValues.subarray(kMatrixOffset, kMatrixOffset + 12);
+  const matrixValue = uniformValues.subarray(kMatrixOffset, kMatrixOffset + 16);
 
   const bindGroup = device.createBindGroup({
     label: 'bezier bind group for object',
