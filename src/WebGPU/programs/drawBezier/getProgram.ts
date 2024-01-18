@@ -55,10 +55,11 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
     tData: Float32Array,
     dirData: Float32Array,
     segmentIndexData: Uint32Array,
+    zoom: number,
   ) {
     // for each single segment we need to create a buffer OR more likely better is to combine
     // all of these data into one buffer!
-  // matrix, p1, p2, p3, p4
+
   const storageBufferSize = (pointsData.length/*points*/) * 4;
   const storageBuffer = device.createBuffer({
     label: 'storage points',
@@ -67,7 +68,7 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
   });
 
 
-  const uniformBufferSize = (16/*matrix*/) * 4;
+  const uniformBufferSize = (16/*matrix*/ + 4/*zoom*/) * 4;
   const uniformBuffer = device.createBuffer({
     label: 'uniforms',
     size: uniformBufferSize,
@@ -78,8 +79,10 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
 
   // offsets to the various uniform values in float32 indices
   const kMatrixOffset = 0;
+  const kZoomOffset = 16;
 
   const matrixValue = uniformValues.subarray(kMatrixOffset, kMatrixOffset + 16);
+  const zoomValue = uniformValues.subarray(kZoomOffset, kZoomOffset + 1);
 
   const bindGroup = device.createBindGroup({
     label: 'bezier bind group for object',
@@ -118,7 +121,7 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
     pass.setVertexBuffer(2, segmentIndexBuffer);
 
     matrixValue.set(matrix)
-
+    zoomValue.set(new Float32Array([zoom]))
     // p1, p2, p3, p4
     // t = 0, dir = 1
     // t = 0, dir = -1

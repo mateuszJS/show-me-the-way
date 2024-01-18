@@ -1,4 +1,4 @@
-import { Segment } from "Path/Path";
+import { Segment } from "Creator/components/Path/Path";
 import getAngleDiff from "utils/getAngleDiff";
 import getAngle from "utils/getAngle";
 

@@ -1,4 +1,4 @@
-import Sketch from "Sketch";
+import Sketch from "Creator/components/Sketch";
 import State from "State";
 import initUI from "UI/initUI";
 import canvasSizeObserver from "WebGPU/canvasSizeObserver";

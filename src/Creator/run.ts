@@ -1,12 +1,15 @@
-import Background from "Background";
-import Interactivity from "Interactivity";
-import Pipe from "Pipe";
-import Sketch from "Sketch";
+import Background from "Creator/components/Background";
+import Interactivity from "Creator/components/Interactivity";
+import Pipe from "Creator/components/Pipe";
+import Sketch from "Creator/components/Sketch";
 import State from "State";
 import getRenderDescriptor from "./getRenderDescriptor";
-import getMatrixPreview from "./getMatrixPreview";
+import getMatrixPreview, { cameraSettings } from "./getMatrixPreview";
 import getMatrixSketch from "./getMatrixSketch";
 import mat4 from "utils/mat4";
+
+export let transformMatrix = new Float32Array()
+export const MAP_BACKGROUND_SCALE = 1000
 
 export default function runCreator(
   state: State,
@@ -19,6 +22,8 @@ export default function runCreator(
   const background = new Background(device, state);
   const pipe = new Pipe()
 
+  state.creatorMapOffset = { x: canvas.clientWidth / 2, y: canvas.clientHeight / 2}
+  state.zoom = 4
 
   function draw(now: DOMHighResTimeStamp) {
     const { needRefresh } = state; // make save copy of needsRefresh value
@@ -31,18 +36,34 @@ export default function runCreator(
 
       if (state.view === "creator") {
         let matrix = getMatrixSketch(canvas)
+
+        transformMatrix = mat4.translate(
+            mat4.scale(
+              mat4.translation(
+                [canvas.clientWidth * .5, canvas.clientHeight * .5, 0] // IMO it should be times state.zoom
+              ),
+              [state.zoom, state.zoom, 1]
+            ),
+            [
+              state.creatorMapOffset.x - canvas.clientWidth  * .5, 
+              state.creatorMapOffset.y - canvas.clientHeight * .5,
+              0,
+            ]
+          )
+        matrix = mat4.multiply(matrix, transformMatrix)
+
         background.render(
           state,
           pass,
           mat4.scale(
-            mat4.translate(
+            // mat4.translate(
               mat4.scale(
-                mat4.translate(matrix, [state.creatorMapOffset.x, state.creatorMapOffset.y, 0]),
-                [500, 500, 1]
+                matrix,
+                [MAP_BACKGROUND_SCALE, MAP_BACKGROUND_SCALE, 1]
               ),
-              [.5, .5, 0]
-            ),
-            [1 * state.zoom, -1 * state.zoom, 1]
+              // [.5, .5, 0]
+            // ),
+            [1, -1, 1]
           )
         )
         // background.render(
@@ -67,7 +88,7 @@ export default function runCreator(
         background.render(
           state,
           pass,
-          mat4.scale(matrix, [100, 100, 1]),
+          mat4.scale(matrix, [MAP_BACKGROUND_SCALE, MAP_BACKGROUND_SCALE, 1]),
         )
         pipe.render(state, pass, matrix)
       }

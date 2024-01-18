@@ -1,7 +1,7 @@
 import State from "State";
 import { drawBezier } from "WebGPU/programs/initPrograms";
 import getTrianglesNumber from "./getTrianglesNumber";
-import { Segment } from "Path/Path";
+import { Segment } from "Creator/components/Path/Path";
 
 export default class Sketch {
   constructor() {
@@ -75,7 +75,8 @@ export default class Sketch {
         new Float32Array(collectedPoints),
         new Float32Array(collectedTStart.concat(collectedTEnd.reverse())),
         new Float32Array(collectedDirStart.concat(collectedDirEnd.reverse())),
-        new Uint32Array(collectedSegmentIndexStart.concat(collectedSegmentIndexEnd.reverse()))
+        new Uint32Array(collectedSegmentIndexStart.concat(collectedSegmentIndexEnd.reverse())),
+        state.zoom
       )
     }
   }
