@@ -16,16 +16,22 @@
         image-rendering: pixelated;
         image-rendering: crisp-edges;
       }
-      #creator-toggle {
-        background: white;
-        position: fixed;
+      #panel {
         top: 0;
         left: 50%;
+        background: white;
+        position: fixed;
+        display: inline-flex;
+        flex-direction: column;
       }
     </style>
   </head>
   <body>
-    <button id="creator-toggle">Sketch/Preview</button>
+    <div id="panel">
+      <button id="creator-toggle">Sketch/Preview</button>
+      <button id="play">Play</button>
+      <label><input id="recording" type="checkbox"/> Recording</label>
+    </div>
     <canvas/>
   </body>
 </html>

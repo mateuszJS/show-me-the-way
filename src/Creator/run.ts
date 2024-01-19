@@ -7,9 +7,13 @@ import getRenderDescriptor from "./getRenderDescriptor";
 import getMatrixPreview, { cameraSettings } from "./getMatrixPreview";
 import getMatrixSketch from "./getMatrixSketch";
 import mat4 from "utils/mat4";
+import captureStreamFromCanvas from "utils/captureCanvasStream";
+import captureStreamFromCanvasWasm from "utils/captureCanvasStreamWasm";
 
 export let transformMatrix = new Float32Array()
 export const MAP_BACKGROUND_SCALE = 1000
+
+let stopRecording: VoidFunction | null = null
 
 export default function runCreator(
   state: State,
@@ -84,6 +88,13 @@ export default function runCreator(
 
         interactivity.render(state, pass, matrix)
       } else {
+
+        if (state.play && stopRecording === null && state.record) {
+          stopRecording = captureStreamFromCanvasWasm(canvas)
+        } else if (!state.play && stopRecording) {
+          stopRecording()
+        }
+
         const matrix = getMatrixPreview(canvas, state)
         background.render(
           state,

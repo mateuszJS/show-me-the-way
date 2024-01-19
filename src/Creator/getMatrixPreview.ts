@@ -45,11 +45,14 @@ export default function getMatrixPreview(canvas: HTMLCanvasElement, state: State
       cameraSettings.zFar,   // zFar
   );
 
-  const target = [0, 0, 0];
+  const [pointOnCurve] = state.path.getPosAndTan(state.time)
+  const target = [pointOnCurve.x, -pointOnCurve.y, 0];
 
   // Use matrix math to compute a position on a circle where
   // the camera is
-  const tempMatrix = mat4.rotationX(cameraSettings.cameraAngle);
+  const cameraPos = mat4.translation(target)
+  const tempMatrix = mat4.rotateX(cameraPos, cameraSettings.cameraAngle);
+  // const tempMatrix = mat4.rotationX(cameraSettings.cameraAngle);
   mat4.translate(tempMatrix, cameraSettings.translation, tempMatrix);
 
   // Get the camera's position from the matrix we computed

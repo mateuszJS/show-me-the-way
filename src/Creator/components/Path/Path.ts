@@ -26,6 +26,7 @@ export default class Path {
   private draftPoint: Point | null;
   private withinDirection: null | ((p: Point) => boolean);
   public segmentsUpdate: number; // helper flag, so we don't need to deeply compare segments to know if rerender is needed
+  public percentageDist: number[];
 
   constructor() {
     this.inputPoints = [];
@@ -33,6 +34,7 @@ export default class Path {
     this.draftPoint = null; // maybe it can be connected with preview point?
     this.withinDirection = null;
     this.segmentsUpdate = 0;
+    this.percentageDist = []
   }
 
   public getPosAndTan(progress: number): [Point, Point] {
@@ -114,5 +116,18 @@ export default class Path {
         lengths,
       };
     });
+
+    // calc total distances
+    let totalDistance = 0
+    const dists = this.segments.flatMap(segment => {
+      segment.lengths.forEach(dist => totalDistance += dist)
+      return segment.lengths
+    })
+
+    const equalPercentage = totalDistance / dists.length 
+    const percentageDist = dists.map(
+      dist => equalPercentage / dist
+    )
+    this.percentageDist = percentageDist
   }
 }

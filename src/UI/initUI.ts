@@ -8,4 +8,21 @@ export default function initUI(state: State) {
 
     state.needRefresh = true
   })
+
+  const playBtn = document.querySelector("#play")!
+  playBtn.addEventListener("click", () => {
+    if (state.play) {
+      state.play = false
+    } else {
+      state.view = "preview"
+      state.play = true
+      state.time = 0
+      state.needRefresh = true
+    }
+  })
+
+  const recordCheckbox = document.querySelector<HTMLInputElement>("#recording")!
+  recordCheckbox.addEventListener("change", (e) => {
+    state.record = (e.target as HTMLInputElement).checked
+  })
 }

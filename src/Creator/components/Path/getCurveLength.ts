@@ -11,6 +11,27 @@ export default function getCurveLength(
   p4: Point,
   precision: number
 ): number[] {
+  const distances= []
+
+  for (let i = 0; i < precision; i++) {
+    const pointA = getBezierPos(p1, p2, p3, p4, i / precision);
+    const pointB = getBezierPos(p1, p2, p3, p4, (i + 1) / precision);
+    const distance = Math.hypot(pointA.x - pointB.x, pointA.y - pointB.y);
+    distances.push(distance);
+  }
+
+  return distances;
+}
+
+// version used for texture coords
+/*
+export default function getCurveLength(
+  p1: Point,
+  p2: Point,
+  p3: Point,
+  p4: Point,
+  precision: number
+): number[] {
   const distances: number[] = [0];
 
   for (let i = 0; i < precision; i++) {
@@ -23,3 +44,4 @@ export default function getCurveLength(
 
   return distances;
 }
+*/

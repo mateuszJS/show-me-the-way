@@ -47,17 +47,6 @@ export default function getProgram(device: GPUDevice, presentationFormat: GPUTex
     vertexData: Float32Array,
     indexData: Uint32Array,
   ) {
-    const sampler = device.createSampler({
-      magFilter: "linear",
-      minFilter: 'linear',
-    }); // responsible for reading data from texture, blending them if you need bigger texture
-  
-
-    // device.queue.copyExternalImageToTexture(
-    //   { source, flipY: true },
-    //   { texture },
-    //   { width: source.width, height: source.height },
-    // );
   // matrix
   const uniformBufferSize = (16) * 4;
   const uniformBuffer = device.createBuffer({

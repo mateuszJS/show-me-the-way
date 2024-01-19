@@ -8,6 +8,9 @@ export default class State {
   public view: "creator" | "preview"
   public creatorMapOffset: Point
   public zoom: number
+  public play: boolean
+  public time: number
+  public record: boolean
 
   constructor() {
     this.needRefresh = false
@@ -18,6 +21,9 @@ export default class State {
       x: 0,
       y: 0
     }
+    this.play = false
+    this.time = 0
+    this.record = false
   }
 
   private convertPoint(point: Point): Point {
