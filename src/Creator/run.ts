@@ -88,6 +88,15 @@ export default function runCreator(
 
         interactivity.render(state, pass, matrix)
       } else {
+        if (state.play && state.time >= 1) {
+          state.play = false
+          state.time = 0
+          state.needRefresh = true
+        }
+      if (state.play) {
+        state.time += 0.001
+        state.needRefresh = true
+      }
 
         if (state.play && stopRecording === null && state.record) {
           stopRecording = captureStreamFromCanvasWasm(canvas)

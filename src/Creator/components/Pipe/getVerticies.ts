@@ -58,10 +58,25 @@ function addPipeVertices(
   }
   return [vertices, indices] 
 }
-export default function getVerticies(path: Path, maxT: number) {
+export default function getVerticies(path: Path, progress: number) {
   const vertices: number[] = []
   const indices: number[] = []
-  addPipeVertices(path, Math.max(0, maxT - 1), OUTER_PIPE_RADIUS, RADIUS_PRECISION - 1, vertices, indices)
-  addPipeVertices(path, maxT, INNER_PIPE_RADIUS, RADIUS_PRECISION, vertices, indices)
+  // we just need to manipulate maxtT here, somehow
+  
+  // progess is <0, 1>
+  // map to
+  // <0, path.segments.length>
+  
+
+  // if it's short path, t needs to go fast
+  // if it's loong path, t needs to go slow
+  
+  // const currProgress = state.time / path.segments.length
+
+
+  if (progress > 0.05) {
+    addPipeVertices(path, Math.max(0, path.getRelativeT(progress - 0.05)), OUTER_PIPE_RADIUS, RADIUS_PRECISION - 1, vertices, indices)
+  }
+  addPipeVertices(path, path.getRelativeT(progress), INNER_PIPE_RADIUS, RADIUS_PRECISION, vertices, indices)
   return [vertices, indices]
 }

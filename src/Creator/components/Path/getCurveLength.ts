@@ -16,8 +16,10 @@ export default function getCurveLength(
   for (let i = 0; i < precision; i++) {
     const pointA = getBezierPos(p1, p2, p3, p4, i / precision);
     const pointB = getBezierPos(p1, p2, p3, p4, (i + 1) / precision);
+    // const prevDistance = distances[distances.length - 1];
     const distance = Math.hypot(pointA.x - pointB.x, pointA.y - pointB.y);
     distances.push(distance);
+    // distances.push(prevDistance + distance);
   }
 
   return distances;

@@ -4,6 +4,8 @@ import distancePointToLine from "./distancePointToLine";
 import getDistance from "./getDistance";
 import fitCurve from "./fitCurve";
 import getCurveLength from "./getCurveLength";
+import atNormIndex from "utils/atNormIndex";
+import resizeArray from "utils/resizeArray";
 
 export interface WidthPoint {
   progress: number;
@@ -18,7 +20,12 @@ export interface Segment {
   controlPoints: [Point, Point, Point, Point]; // knot, control point, control point, knot
   // all of the them be called control points, knot is a special type because curve go though that point
   lengths: number[]; // progressive lengths
+  totalLength: number
 }
+
+
+
+
 
 export default class Path {
   private inputPoints: Point[]; // this is exactly path from user input
@@ -26,7 +33,7 @@ export default class Path {
   private draftPoint: Point | null;
   private withinDirection: null | ((p: Point) => boolean);
   public segmentsUpdate: number; // helper flag, so we don't need to deeply compare segments to know if rerender is needed
-  public percentageDist: number[];
+  public constTs: number[];
 
   constructor() {
     this.inputPoints = [];
@@ -34,7 +41,7 @@ export default class Path {
     this.draftPoint = null; // maybe it can be connected with preview point?
     this.withinDirection = null;
     this.segmentsUpdate = 0;
-    this.percentageDist = []
+    this.constTs = []
   }
 
   public getPosAndTan(progress: number): [Point, Point] {
@@ -110,24 +117,56 @@ export default class Path {
         }
       }) as Segment["controlPoints"];
       const lengths = getCurveLength(...controlPoints, TEX_COORD_PRECISION);
+      const totalLength = lengths.reduce((acc, length) => acc + length, 0)
 
       return {
         controlPoints,
         lengths,
+        totalLength,
       };
     });
 
-    // calc total distances
-    let totalDistance = 0
-    const dists = this.segments.flatMap(segment => {
-      segment.lengths.forEach(dist => totalDistance += dist)
-      return segment.lengths
+    const PRECISION = 0.75 // smaller means less "t" samples
+    const constTs: number[] = [0]
+    let visitedTotalT = 0
+
+
+    this.segments.forEach(segment => {
+      
+      if (segment.totalLength * PRECISION < segment.lengths.length * 1.5) {
+        // we dont have enough slots for t sampels to interpolate lengths one by one
+        // means, there is too much lengths for such a small total distance of this segment
+        constTs.push(
+          ...resizeArray(
+            [visitedTotalT, visitedTotalT + 1.0],
+            Math.round(segment.totalLength * PRECISION)
+          ).slice(1)
+        )
+  
+        visitedTotalT += 1.0
+        return
+      }
+
+      const eachSegmentStepT = 1 / segment.lengths.length
+
+      segment.lengths.forEach(length => {
+        constTs.push(
+          ...resizeArray(
+            [visitedTotalT, visitedTotalT + eachSegmentStepT],
+            Math.max(2, Math.round(length * PRECISION)) // length needs to be at least 2!
+          ).slice(1)
+        )
+
+        visitedTotalT += eachSegmentStepT
+      })
     })
 
-    const equalPercentage = totalDistance / dists.length 
-    const percentageDist = dists.map(
-      dist => equalPercentage / dist
-    )
-    this.percentageDist = percentageDist
+    this.constTs = constTs
+  }
+
+  public getRelativeT(progress: number/*<0, 1>*/) {
+    if (progress >= 1) return this.segments.length
+
+    return atNormIndex(this.constTs, progress)
   }
 }

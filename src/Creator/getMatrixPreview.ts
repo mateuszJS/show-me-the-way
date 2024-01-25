@@ -44,8 +44,8 @@ export default function getMatrixPreview(canvas: HTMLCanvasElement, state: State
       cameraSettings.zNear,      // zNear
       cameraSettings.zFar,   // zFar
   );
-
-  const [pointOnCurve] = state.path.getPosAndTan(state.time)
+  const relativeT = state.path.getRelativeT(state.time)
+  const [pointOnCurve] = state.path.getPosAndTan(relativeT)
   const target = [pointOnCurve.x, -pointOnCurve.y, 0];
 
   // Use matrix math to compute a position on a circle where
