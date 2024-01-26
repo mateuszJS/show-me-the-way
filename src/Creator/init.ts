@@ -22,6 +22,8 @@ export default async function initCreator() {
   context.configure({
     device,
     format: presentationFormat,
+    // Specify we want both RENDER_ATTACHMENT and COPY_SRC since we
+    // will copy out of the swapchain texture.
   });
 
   canvasSizeObserver(canvas, device, () => {
@@ -30,7 +32,7 @@ export default async function initCreator() {
 
   initPrograms(device, presentationFormat)
 
-  runCreator(state, canvas, context, device)
+  runCreator(state, canvas, context, device, presentationFormat)
 
   initUI(state)
 }

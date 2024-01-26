@@ -10,6 +10,7 @@ import mat4 from "utils/mat4";
 import captureStreamFromCanvas from "utils/captureCanvasStream";
 import captureStreamFromCanvasWasm from "utils/captureCanvasStreamWasm";
 import vec3 from "utils/vec3";
+import { drawBlur, drawFullTexture } from "WebGPU/programs/initPrograms";
 
 export let transformMatrix = new Float32Array()
 export const MAP_BACKGROUND_SCALE = 1000
@@ -21,6 +22,7 @@ export default function runCreator(
   canvas: HTMLCanvasElement,
   context: GPUCanvasContext,
   device: GPUDevice,
+  presentationFormat: GPUTextureFormat,
 ) {
   const sketch = new Sketch();
   const interactivity = new Interactivity(canvas, state);
@@ -35,7 +37,12 @@ export default function runCreator(
     state.needRefresh = false; // set next needsRefresh to false by default
 
     if (needRefresh) {
-      const renderPassDescriptor = getRenderDescriptor(context, device)
+      const sceneTexture = device.createTexture({
+        size: [canvas.width, canvas.height],
+        format: presentationFormat,
+        usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
+      });
+      const renderPassDescriptor = getRenderDescriptor(sceneTexture, device)
       const encoder = device.createCommandEncoder()
       const pass = encoder.beginRenderPass(renderPassDescriptor)
 
@@ -61,32 +68,14 @@ export default function runCreator(
           state,
           pass,
           mat4.scale(
-            // mat4.translate(
-              mat4.scale(
-                matrix,
-                [MAP_BACKGROUND_SCALE, MAP_BACKGROUND_SCALE, 1]
-              ),
-              // [.5, .5, 0]
-            // ),
+            mat4.scale(
+              matrix,
+              [MAP_BACKGROUND_SCALE, MAP_BACKGROUND_SCALE, 1]
+            ),
             [1, -1, 1]
           )
         )
-        // background.render(
-        //   state,
-        //   pass,
-        //   mat4.scale(
-        //     mat4.translate(
-        //       mat4.scale(
-        //         mat4.translate(matrix, [state.creatorMapOffset.x, state.creatorMapOffset.y, 0]),
-        //         [500, 500, 1]
-        //       ),
-        //       [-.5, -.5, 0]
-        //     ),
-        //     [1, -1, 1]
-        //   )
-        // )
         sketch.render(state, pass, matrix);
-
         interactivity.render(state, pass, matrix)
       } else {
 
@@ -124,6 +113,24 @@ export default function runCreator(
       }
 
       pass.end()
+      // here we need to render that texture into canvas
+      const canvasTexture = context.getCurrentTexture();
+      const renderToCanvasDescriptor = {
+        // describe which textures we want to raw to and how use them
+        label: "our render to canvas renderPass",
+        colorAttachments: [
+          {
+            view: canvasTexture.createView(),
+            clearValue: [0.3, 0, 0, 1],
+            loadOp: "clear", // before rendering clear the texture to value "clear". Other option is "load" to load existing content of the texture into GPU so we can draw over it
+            storeOp: "store", // to store the result of what we draw, other option is "discard"
+          } as const,
+        ],
+      }
+      const blurredTexture = drawBlur(sceneTexture, encoder)
+      const renderToCanvasPass = encoder.beginRenderPass(renderToCanvasDescriptor)
+      drawFullTexture(renderToCanvasPass, blurredTexture)
+      renderToCanvasPass.end()
       const commandBuffer = encoder.finish();
       device.queue.submit([commandBuffer]);
     }
