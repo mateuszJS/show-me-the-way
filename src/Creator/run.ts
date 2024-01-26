@@ -9,6 +9,7 @@ import getMatrixSketch from "./getMatrixSketch";
 import mat4 from "utils/mat4";
 import captureStreamFromCanvas from "utils/captureCanvasStream";
 import captureStreamFromCanvasWasm from "utils/captureCanvasStreamWasm";
+import vec3 from "utils/vec3";
 
 export let transformMatrix = new Float32Array()
 export const MAP_BACKGROUND_SCALE = 1000
@@ -88,13 +89,15 @@ export default function runCreator(
 
         interactivity.render(state, pass, matrix)
       } else {
-        if (state.play && state.time >= 1) {
-          state.play = false
-          state.time = 0
-          state.needRefresh = true
-        }
+
       if (state.play) {
         state.time += 0.001
+        state.needRefresh = true
+      }
+
+      if (state.play && state.time >= 1) {
+        state.play = false
+        state.time = 0
         state.needRefresh = true
       }
 
@@ -103,14 +106,21 @@ export default function runCreator(
         } else if (!state.play && stopRecording) {
           stopRecording()
         }
-
-        const matrix = getMatrixPreview(canvas, state)
+        console.log(state.play, state.time)
+        const lightColor = new Float32Array([0.2, 1, 0.2, 1])
+        
+        
+        const {
+          lightDirection,
+          worldViewProjection,
+          normalMatrix
+        } = getMatrixPreview(canvas, state)
         background.render(
           state,
           pass,
-          mat4.scale(matrix, [MAP_BACKGROUND_SCALE, MAP_BACKGROUND_SCALE, 1]),
+          mat4.scale(worldViewProjection, [MAP_BACKGROUND_SCALE, MAP_BACKGROUND_SCALE, 1]),
         )
-        pipe.render(state, pass, matrix)
+        pipe.render(state, pass, worldViewProjection, normalMatrix, lightColor, lightDirection)
       }
 
       pass.end()

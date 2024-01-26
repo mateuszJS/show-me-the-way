@@ -1,6 +1,8 @@
 import GUI from "GUI";
 import State from "State";
+import mat3 from "WebGPU/m3";
 import mat4 from "utils/mat4";
+import vec3 from "utils/vec3";
 
 const degToRad = (d: number) => d * Math.PI / 180;
 export const cameraSettings = {
@@ -8,10 +10,12 @@ export const cameraSettings = {
   fieldOfView: degToRad(18.15),
   zNear: 1,
   zFar: 2000,
-  translation: [0, 0, 450],
+  translation: [0, 0, 167],
   rotation: [degToRad(0), degToRad(0), degToRad(0)],
   scale: [1, 1, 1],
   scaleFactor: 1,
+  light: [.31, .46, -.16]
+  // light: [-0.5, -0.7, -1]
 }; // to add more perspective, increase fieldofView and decrease translation.z
 const radToDegOptions = { min: -360, max: 360, step: 1, converters: GUI.converters.radToDeg };
 
@@ -35,6 +39,9 @@ export default function getMatrixPreview(canvas: HTMLCanvasElement, state: State
     // gui.add(cameraSettings.scale, '1', -5, 5).name('scale.y');
     // gui.add(cameraSettings.scale, '2', -5, 5).name('scale.z');
     gui.add(cameraSettings, 'scaleFactor', -5, 5).name('scaleFactor');
+    gui.add(cameraSettings.light, '0', -Math.PI, Math.PI).name('light.x');
+    gui.add(cameraSettings.light, '1', -Math.PI, Math.PI).name('light.y');
+    gui.add(cameraSettings.light, '2', -Math.PI, Math.PI).name('light.z');
   }
   
   const aspect = canvas.clientWidth / canvas.clientHeight;
@@ -65,7 +72,20 @@ export default function getMatrixPreview(canvas: HTMLCanvasElement, state: State
   // combine the view and projection matrixes
   const scaling = mat4.scaling([cameraSettings.scaleFactor, cameraSettings.scaleFactor,cameraSettings.scaleFactor])
   const viewProjectionMatrix = mat4.multiply(projection, viewMatrix);
-  const scaledViewProjectionMatrix = mat4.multiply(scaling, viewProjectionMatrix);
+  // const scaledViewProjectionMatrix = mat4.multiply(scaling, viewProjectionMatrix);
 
-  return scaledViewProjectionMatrix
+  const world = mat4.identity();
+
+  // Combine the viewProjection and world matrices
+  const worldViewProjection = mat4.multiply(viewProjectionMatrix, world);
+
+      // Inverse and transpose it into the normalMatrix value
+  const normalMatrix = mat3.fromMat4(mat4.transpose(mat4.inverse(world)));
+
+  const lightDirection = vec3.normalize(cameraSettings.light);
+  return {
+    worldViewProjection,
+    normalMatrix,
+    lightDirection
+  }
 }

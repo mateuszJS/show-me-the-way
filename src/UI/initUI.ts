@@ -16,7 +16,6 @@ export default function initUI(state: State) {
     } else {
       state.view = "preview"
       state.play = true
-      state.time = 0
       state.needRefresh = true
     }
   })

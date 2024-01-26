@@ -105,6 +105,28 @@ export default class Path {
     );
     if (fitted.length === 0) return;
 
+    
+// const fitted = [
+//   [
+//     [-20.75, -13.875],
+//     [-24.833333333333332, 1.125],
+//     [-30.28645152325773, 15.817803464530781],
+//     [-33, 31.125]
+//   ],
+//   [
+//     [-33, 31.125],
+//     [-33.976069392280074, 36.6310324692722],
+//     [-29.27131221782315, 50.4176244356463],
+//     [-22, 35.875]
+//   ],
+//   [
+//     [-22, 35.875],
+//     [-17.97130764016446, 27.817615280328923],
+//     [-26.76510804294682, 31.828275493949214],
+//     [0.75, -14.875]
+//   ]
+// ]
+    
     this.segments = fitted.map<Segment>((bezierCurve) => {
       const controlPoints = bezierCurve.map(([x, y]) => {
         if (Number.isNaN(x) || Number.isNaN(y)) {
@@ -130,7 +152,7 @@ export default class Path {
     const constTs: number[] = [0]
     let visitedTotalT = 0
 
-
+    // How do we know we go with same speed over all segments????
     this.segments.forEach(segment => {
       
       if (segment.totalLength * PRECISION < segment.lengths.length * 1.5) {
@@ -162,6 +184,28 @@ export default class Path {
     })
 
     this.constTs = constTs
+    // we still need to work on it, I feel liek whole idea causes
+    // low precision
+    return
+    console.log("constTs", constTs)
+    const collectedDistanced: number[] = []
+    const offsetT = 0.05
+    for (let t = 0; t + offsetT < 1; t += 0.01) {
+      const relativeTStart = this.getRelativeT(t)
+      const relativeTEnd = this.getRelativeT(t + offsetT)
+
+      const [startPos] = this.getPosAndTan(relativeTStart)
+      const [endPos] = this.getPosAndTan(relativeTEnd)
+      
+      const dist = Math.hypot(startPos.x - endPos.x, startPos.y - endPos.y)
+      collectedDistanced.push(dist)
+    }
+    console.log([...collectedDistanced])
+    collectedDistanced.sort((a, b) => b - a)
+    console.log(
+      "max: ", collectedDistanced[0],
+      ", mediam: ", collectedDistanced[((collectedDistanced.length - 1) / 2) | 0],
+      ", min: ", collectedDistanced[collectedDistanced.length - 1])
   }
 
   public getRelativeT(progress: number/*<0, 1>*/) {
